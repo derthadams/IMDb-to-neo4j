@@ -846,20 +846,23 @@ def to_caps(str):
 
 
 def open_imdb_browser():
+    find_radio = '''
+        settingsUI = document.getElementsByTagName('settings-ui')[0]
+        settingsMain = settingsUI.shadowRoot.getElementById('main')
+        settingsBasicPage = settingsMain.shadowRoot.querySelector('settings-basic-page')
+        settingsPrivacyPage = settingsBasicPage.shadowRoot.querySelector('settings-privacy-page')
+        radioGroup = settingsPrivacyPage.shadowRoot.querySelector('settings-category-default-radio-group')
+        disabledRadioOption = radioGroup.shadowRoot.getElementById('disabledRadioOption')
+        disc = disabledRadioOption.shadowRoot.querySelector('.disc-border')
+        return disc
+        '''
     # Set Chrome preferences
     chrome_options = webdriver.ChromeOptions()
     prefs = {
         'profile.default_content_settings':
         {
-            'cookies': 2,
-            # 'images': 2,
-            # 'javascript': 2
+            'cookies': 2
         },
-        # 'profile.managed_default_content_settings':
-        # {
-        #     'images': 2,
-        #     'javascript': 2
-        # }
              }
     chrome_options.add_experimental_option('prefs', prefs)
     chrome_options.add_argument('--enable-automation')
@@ -904,7 +907,7 @@ def open_imdb_browser():
             driver.refresh()
             j -= 1
 
-    pause = input("Manually turn off Javascript, then hit enter")
+    driver.execute_script(find_radio).click()
 
     j = 5
     while j > 0:
@@ -915,7 +918,7 @@ def open_imdb_browser():
             driver.refresh()
             j -= 1
 
-    pause = input("Manually turn off Images, then hit enter: ")
+    driver.execute_script(find_radio).click()
 
     return driver
 

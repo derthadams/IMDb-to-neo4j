@@ -216,18 +216,10 @@ In the console, you'll see
 
 Sometimes IMDb gives you a CAPTCHA challenge after you've logged in, so this pause allows you
 time to complete it.
-
-<a name="chrome"></a>
-Before moving on it's also a good idea to turn off Javascript and image loading, which will greatly 
-speed up the scraping process. Go to Chrome -> Preferences -> Privacy and Security -> Site Settings 
-and turn off the options for Javascript and Images.
-
-At first I tried disabling Javascript and images programmatically in the initial WebDriver settings,
-but since any CAPTCHA you receive will require both of those to be turned on, it's unfortunately
-necessary to turn them off manually after logging in.
     
-When you're ready to continue, hit enter and you'll be prompted for the file path of the person 
-list csv
+When you're ready to continue, hit enter. The script will then navigate to Chrome settings and
+turn off Javascript and image loading in order to speed up scraping. You'll then be prompted for 
+the file path of the person list csv
 
     File path of the Person List: 
     
@@ -268,10 +260,10 @@ At this point you'll get the prompt
 
     Hit enter to continue:
 
-which allows you time to complete any CAPTCHA that IMDb give you, as well as turn off Javascript 
-and image loading (as covered in [this section above](#chrome)).
+which allows you time to complete any CAPTCHA that IMDb give you.
     
-After you hit enter you'll get a prompt for the credit results csv
+After you hit enter the script will turn off Javascript and image loading in Chrome settings and
+you'll get a prompt for the credit results csv
 
     File path of the Person-Season List: 
     
