@@ -12,13 +12,6 @@ IMDB_SIGNIN_URL = 'https://www.imdb.com/registration/signin'
 IMDB_NAME_BASE_URL = 'https://www.imdb.com/name/'
 IMDB_TITLE_BASE_URL = 'https://www.imdb.com/title/'
 
-def get_json(soup):
-    data = soup.select_one('script[type="application/ld+json"]')
-    if data:
-        return json.loads(data.text)
-    else:
-        return None
-
 
 class Page(object):
     def __init__(self, driver, imdb_id):
@@ -41,6 +34,13 @@ class Page(object):
                 self.driver.refresh()
                 j -= 1
 
+    def _get_json(self):
+        data = self.soup.select_one('script[type="application/ld+json"]')
+        if data:
+            return json.loads(data.text)
+        else:
+            return None
+
 
 class NamePage(Page):
     def __init__(self, driver, session, crew):
@@ -52,7 +52,9 @@ class NamePage(Page):
         Page.__init__(self, driver, crew.imdb_name_id)
         self.url = IMDB_NAME_BASE_URL + self.imdb_id + '/'
         self._get_page(self.url)
-        self.name = get_json(self.soup)['name']
+        data = self._get_json()
+        if data:
+            self.name = data['name']
         self._get_credits(session)
 
     def _get_credits(self, session):
@@ -285,7 +287,7 @@ class ShowPage(Page):
         self._get_genres()
 
     def _get_genres(self):
-        data = get_json(self.soup)
+        data = self._get_json()
         if data:
             if 'genre' in data:
                 self.genre_list = data['genre']
@@ -437,9 +439,13 @@ class EpisodePage(Page):
         self.url = IMDB_TITLE_BASE_URL + self.imdb_id + '/'
         self.episode = episode
         self._get_page(self.url)
-        json_data = get_json(self.soup)
-        self.episode.episode_title = h.unescape(json_data['name'])
-        self.episode.genre_list = json_data['genre']
+        json_data = self._get_json()
+        if json_data:
+            self.episode.episode_title = h.unescape(json_data['name'])
+            self.episode.genre_list = json_data['genre']
+        else:
+            self.episode.episode_title = ''
+            self.episode.genre_list = []
 
         self._get_season_episode_nums()
         self._get_airdate()
