@@ -7,7 +7,7 @@
 <a name="introduction"></a>
 ## Introduction
 I started this project because I wanted to study the collaboration networks of camera professionals 
-working in the TV industry, and I needed a way to gather and analyze data.
+working in the TV industry, and I needed a way to gather and analyze data about those networks.
 
 TV freelancers work on short-term assignments for many different employers, and find work through 
 informal peer networks. 
@@ -35,11 +35,11 @@ shows as entities: it only has shows and episodes as entities, and seasons exist
 episodes. Since shows are too general for detecting collaborations and episodes are too specific, 
 I had to generate season entities by combining data from the related show and episode entities.
 
-- Because IMDb displays credits in a truncated format by default, I had to scrape the pages as a 
-logged-in user in order to select an expanded format in the user preferences that would display all 
-the data on the page at once. In order to handle user authentication I had to scrape the site by 
+- Because IMDb displays people's credits in a truncated format by default, I had to scrape the pages
+as a logged-in user in order to select an expanded format in the user preferences that would display
+all the data on the page at once. In order to handle user authentication I had to scrape the site by 
 controlling a Chrome browser with Selenium instead of using a more lightweight library like 
-requests.
+Requests.
 
 ### Schemas
 
@@ -47,15 +47,15 @@ The following two diagrams show the approximate relational schema for the IMDb s
 graph schema for my neo4j datastore. Since seasons don't exist as entities in IMDb, my code 
 generates them from the related show and episode entities.
 
-![IMDb schema](https://user-images.githubusercontent.com/39425112/135365993-7b0729cc-a1c8-4b21-9cc3-90ca4f127f78.png)
-
 | IMDb Relational Schema |
 | :----: |
 
-![neo4j schema](https://user-images.githubusercontent.com/39425112/135366038-76c46fa4-366d-4775-a07e-e54d3b4f6cc5.png)
+![IMDb schema](https://user-images.githubusercontent.com/39425112/135365993-7b0729cc-a1c8-4b21-9cc3-90ca4f127f78.png)
+
 
 | neo4j Graph Schema |
 | :----: |
+![neo4j schema](https://user-images.githubusercontent.com/39425112/135366038-76c46fa4-366d-4775-a07e-e54d3b4f6cc5.png)
 
 Not only does the code scrape data and store it, it also cleans and transforms the data
 into a different schema.
@@ -80,18 +80,19 @@ the IMDb pages and interacting with the neo4j database.
 
 ### Linux and macOS
 
-IMDB-to-neo4j and its dependencies require Python 3.7, as well as 
+IMDb-to-neo4j and its dependencies require 
+[Python 3.7](https://www.python.org/downloads/release/python-3712/), as well as 
 [pip](https://pip.pypa.io/en/stable/) and 
 [virtualenv](https://pypi.org/project/virtualenv/).
 
 Navigate to the directory where you want to install IMDb-to-neo4j and create a virtual environment 
 with Python 3.7
 
-    python3 -m virtualenv --python=<path/to/python3.7> <environment-name>
+    python3 -m virtualenv --python=<path/to/python3.7> <environment_name>
     
 Activate the virtual environment
 
-    source <environment-name>/bin/activate
+    source <environment_name>/bin/activate
 
 Initialize git
 
@@ -162,8 +163,8 @@ scrape:
 | nm0003113 | Derth Adams |
 | ... | ... |
 
-You can find the IMDb identifier for a person by searching for their profile page on IMDb and
-looking at the page URL, which has the form
+You can find the IMDb identifier for a person by searching for their profile page and
+looking at the URL, which has the form
 
     https://www.imdb.com/name/nm0000000/
     
@@ -197,12 +198,7 @@ Once you have all the people added to neo4j, you can scrape their credits by run
 
     python3 scrape_name_list.py
     
-Next you'll get the prompt
-
-    Number of rows to skip:
-    
-After you enter the number of rows the script will launch Chrome, log in to your IMDb account and 
-load the IMDb home page. 
+The script will launch Chrome, log in to your IMDb account and load the IMDb home page. 
 
 In the console, you'll see
 
@@ -229,11 +225,11 @@ and then
 
     Number of rows to skip:
 
-Once you've entered the number of rows, the script will begin visiting the profile page for each 
-person on the list, and each episode of each show that they're listed as working on will be 
-recursively scraped in order to generate season entities.
+Once you've entered the number of rows, the script will visit the profile page for each 
+person on the list. It will then recursively scrape the page of each episode of each show they're 
+credited with in order to generate season entities.
 
-The script will check neo4j first for any episodes to try and avoid having to scrape the episode 
+The script will check neo4j first for any episodes to avoid having to scrape the episode 
 page, and will save any new episodes it encounters back to neo4j for later use.
 
 After scraping is completed Chrome will quit and you can find a csv results file in the same 
