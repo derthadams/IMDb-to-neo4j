@@ -610,6 +610,27 @@ def date_string_to_date(date_string):
         return None
 
 
+def add_genre(tx, genre_name):
+    tx.run("MERGE (g:Genre {genreName: $genreName}) "
+           "ON CREATE SET g.uuid = apoc.create.uuid() ",
+           genreName=genre_name)
+
+
+def add_person(tx, person):
+    full_name = person.full_name
+    imdb_name_id = person.imdb_name_id
+    tx.run("MERGE (a:Person {imdbNameID: $imdbNameID})"
+           "ON CREATE SET a.createdDate = datetime(), "
+           "a.uuid = apoc.create.uuid(), a.fullName = $fullName ",
+           fullName=full_name, imdbNameID=imdb_name_id,)
+
+
+def get_crew_list(tx, label):
+    return tx.run("MATCH (p) WHERE $label IN labels(p) "
+                  "RETURN p.imdbNameID, p.fullName ",
+                  label=label)
+
+
 def check_neo4j_for_episode(tx, episode):
     imdb_episode_id = episode.imdb_episode_id
     return tx.run("MATCH(e:Episode {imdbEpisodeID: $imdbEpisodeID})"
