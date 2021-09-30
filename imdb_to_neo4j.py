@@ -8,6 +8,9 @@ import json
 import html as h
 import config
 
+IMDB_SIGNIN_URL = 'https://www.imdb.com/registration/signin'
+IMDB_NAME_BASE_URL = 'https://www.imdb.com/name/'
+IMDB_TITLE_BASE_URL = 'https://www.imdb.com/title/'
 
 def get_json(soup):
     data = soup.select_one('script[type="application/ld+json"]')
@@ -47,7 +50,7 @@ class NamePage(Page):
         :param crew:        Person object
         """
         Page.__init__(self, driver, crew.imdb_name_id)
-        self.url = 'https://www.imdb.com/name/' + self.imdb_id + '/'
+        self.url = IMDB_NAME_BASE_URL + self.imdb_id + '/'
         self._get_page(self.url)
         self.name = get_json(self.soup)['name']
         self._get_credits(session)
@@ -276,7 +279,7 @@ class Show(object):
 class ShowPage(Page):
     def __init__(self, driver, imdb_title_id):
         Page.__init__(self, driver, imdb_title_id)
-        self.url = 'https://www.imdb.com/title/' + self.imdb_id + '/'
+        self.url = IMDB_TITLE_BASE_URL + self.imdb_id + '/'
         self._get_page(self.url)
         self.genre_list = []
         self._get_genres()
@@ -431,7 +434,7 @@ class Season(object):
 class EpisodePage(Page):
     def __init__(self, driver, episode):
         Page.__init__(self, driver, episode.imdb_episode_id)
-        self.url = 'https://www.imdb.com/title/' + self.imdb_id + '/'
+        self.url = IMDB_TITLE_BASE_URL + self.imdb_id + '/'
         self.episode = episode
         self._get_page(self.url)
         json_data = get_json(self.soup)
@@ -473,7 +476,7 @@ class EpisodePage(Page):
 class EpisodeListPage(Page):
     def __init__(self, driver, show):
         Page.__init__(self, driver, show.imdb_title_id)
-        self.url = 'https://www.imdb.com/title/' + self.imdb_id + '/episodes'
+        self.url = IMDB_TITLE_BASE_URL + self.imdb_id + '/episodes'
         self.show = show
         self.episode_list = []
         self.season_list = []
@@ -506,7 +509,7 @@ class EpisodeListPage(Page):
             if self.selected:
                 if int(option) > self.selected:
                     break
-            url = 'https://www.imdb.com/title/' + self.imdb_id + '/episodes?' + \
+            url = IMDB_TITLE_BASE_URL + self.imdb_id + '/episodes?' + \
                   self.page_layout + '=' + option
             self._get_page(url)
             self._get_episodes_for_one_year_or_season()
@@ -571,7 +574,7 @@ class EpisodeListPage(Page):
     def get_seasons_for_year(self, year):
         self._get_options_div('byYear')
         if year in self.option_list:
-            url = 'https://www.imdb.com/title/' + self.imdb_id + '/episodes?year=' + year
+            url = IMDB_TITLE_BASE_URL + self.imdb_id + '/episodes?year=' + year
             self._get_page(url)
             self._get_episodes_for_one_year_or_season()
             self.get_seasons_from_episodes()
