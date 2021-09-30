@@ -37,19 +37,18 @@ I had to generate season entities by combining data from the related show and ep
 
 - Because IMDb displays people's credits in a truncated format by default, I had to scrape the pages
 as a logged-in user in order to select an expanded format in the user preferences that would display
-all the data on the page at once. In order to handle user authentication I had to scrape the site by 
-controlling a Chrome browser with Selenium instead of using a more lightweight library like 
-Requests.
+all the data I needed on the page at once. In order to handle user authentication I had to scrape 
+the site by controlling a Chrome browser with Selenium instead of using a more lightweight library 
+like Requests.
 
 ### Schemas
 
-The following two diagrams show the approximate relational schema for the IMDb source data, and the 
+The following two diagrams show the implicit relational schema for the IMDb source data, and the 
 graph schema for my neo4j datastore. Since seasons don't exist as entities in IMDb, my code 
 generates them from the related show and episode entities.
 
 | IMDb Relational Schema |
 | :----: |
-
 ![IMDb schema](https://user-images.githubusercontent.com/39425112/135365993-7b0729cc-a1c8-4b21-9cc3-90ca4f127f78.png)
 
 
@@ -57,11 +56,8 @@ generates them from the related show and episode entities.
 | :----: |
 ![neo4j schema](https://user-images.githubusercontent.com/39425112/135366038-76c46fa4-366d-4775-a07e-e54d3b4f6cc5.png)
 
-Not only does the code scrape data and store it, it also cleans and transforms the data
-into a different schema.
-
 ### Code organization
-I structured my code in two parts:
+The code is structured in two parts:
 1. A library `imdb-to-neo4j.py` which contains multipurpose classes and functions that handle scraping 
 the IMDb pages and interacting with the neo4j database.
 2. Standalone scripts that use `imdb-to-neo4j.py` to accomplish individual tasks:
@@ -86,19 +82,25 @@ IMDb-to-neo4j and its dependencies require
 [virtualenv](https://pypi.org/project/virtualenv/).
 
 Navigate to the directory where you want to install IMDb-to-neo4j and create a virtual environment 
-with Python 3.7
+using `virtualenv`
 
     python3 -m virtualenv --python=<path/to/python3.7> <environment_name>
     
-Activate the virtual environment
+then activate the virtual environment
 
     source <environment_name>/bin/activate
+    
+At this point your shell prompt should be prefaced with `environment_name` in parentheses, which
+indicates that the virtual environment is running. After you're done using IMDb-to-neo4j, you
+can leave the virtual environment with
 
-Initialize git
+    deactivate
+
+Next, initialize the folder as a git repository
 
     git init
     
-Clone the IMDb-to-neo4j git repository, either
+and clone the IMDb-to-neo4j repository, either
 
 - via https
     
@@ -112,14 +114,14 @@ Navigate to the project directory
 
     cd IMDb-to-neo4j
     
-and install the project dependencies using pip
+and install the project dependencies using `pip`
 
     python3 -m pip install -r requirements.txt
     
 ### Additional dependencies
-Running this project requires that you have an installed and active 
-[neo4j 3.5 Community Version](https://neo4j.com/download-center/#community) database instance, as 
-well as [Google Chrome](https://www.google.com/chrome/) and 
+Running this project requires that you have a
+[neo4j 3.5 Community Version](https://neo4j.com/download-center/#community) database instance
+installed, as well as [Google Chrome](https://www.google.com/chrome/) and 
 [ChromeDriver](https://chromedriver.chromium.org).
 
 <a name="using"></a>
@@ -154,7 +156,7 @@ to the neo4j database by running the file `add_genres.py`
 
 #### Adding people to neo4j
 Prepare a csv file with the IMDb identifiers and full names of the people whose credits you want to 
-scrape:
+scrape, in the following format:
 
 *person_list.csv*
     
@@ -277,8 +279,8 @@ script will use Chrome to scrape the corresponding pages to get the data.
 ### Adding WORKED_WITH relationships to neo4j
 
 The final step in creating the collaboration graph is to create WORKED_WITH relationships between 
-any two
-people who have worked on the same TV show season. You can do this by using `add_worked_with.py`:
+any two people who have worked on the same TV show season. 
+You can do this by using `add_worked_with.py`:
 
     python3 add_worked_with.py
     
@@ -291,7 +293,7 @@ created you'll see a status update in the console.
 I wrote this library specifically to scrape for people who work in the camera department. It looks 
 for credits in the "Camera and Electrical Department" and "Cinematographer" job classes and ignores 
 others, so if you try and use it with people working other jobs it won't work. Later on I may
-generalize the library so it works for all types of people on IMDb.
+generalize the library so it works for all types of jobs.
 
 Since IMDb is continuously under development, changes to the website could break this code's 
 functionality at any time.
