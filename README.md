@@ -49,7 +49,7 @@ generates them from the related show and episode entities.
 
 | IMDb Relational Schema |
 | :----: |
-![IMDb schema](https://user-images.githubusercontent.com/39425112/135365993-7b0729cc-a1c8-4b21-9cc3-90ca4f127f78.png)
+![IMDb schema](https://user-images.githubusercontent.com/39425112/135376347-f813388e-b282-4bcd-a99b-d1ea16bd7fb8.png)
 
 
 | neo4j Graph Schema |
