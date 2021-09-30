@@ -416,8 +416,8 @@ class Season(object):
     @property
     def rough_end(self):
         """Returns string representation of the last day of the year of the last airdate"""
-        if self.last_airdate():
-            return self.last_airdate()[:-5] + "12-31"
+        if self.last_airdate:
+            return self.last_airdate[:-5] + "12-31"
         else:
             return None
 
