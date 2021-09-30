@@ -234,7 +234,7 @@ class Credit(object):
                     session.write_transaction(add_episode, episode)
                     session.write_transaction(add_genre_to_episode, episode)
 
-        season_nums = {episode.season_num for episode in self.episode_list}
+        season_nums = set(episode.season_num for episode in self.episode_list)
 
         if season_nums:
             for season_num in season_nums:
