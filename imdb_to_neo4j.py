@@ -790,17 +790,21 @@ def open_imdb_browser():
     chrome_options.add_experimental_option('prefs', prefs)
     chrome_options.add_argument('--enable-automation')
 
-    # Instantiate webdriver and navigate to IMDB login page
+    # Instantiate webdriver and navigate to IMDB registration/login page
     driver = webdriver.Chrome(options=chrome_options)
 
     j = 5
     while j > 0:
         try:
-            driver.get(config.imdb_signin_url)
+            driver.get(IMDB_SIGNIN_URL)
             break
         except TimeoutException:
             driver.refresh()
             j -= 1
+
+    # Click on "Sign in with IMDb" button
+    si = driver.find_element_by_link_text('Sign in with IMDb')
+    si.click()
 
     # Log in to IMDBPro account
     email = config.imdb_username
@@ -815,7 +819,7 @@ def open_imdb_browser():
     li = driver.find_element_by_id('signInSubmit')
     li.click()
 
-    pause = input("Hit enter after captcha: ")
+    pause = input("Hit enter to begin scraping: ")
 
     return driver
 
