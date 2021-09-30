@@ -184,8 +184,7 @@ class Credit(object):
     def _create_episode_list(self):
         episode_divs = self.div.findAll('div', {'class': 'filmo-episodes'})
         if episode_divs:
-            print(f"episode divs found for {self.title}")
-            #for each episode div
+            # for each episode div
             for episode_div in episode_divs:
                 #find all the <a> elements in the episode div
                 for link in episode_div.findAll('a'):
@@ -201,7 +200,6 @@ class Credit(object):
                             episode_title_job[1].lower())):
                                 job_title = episode_title_job[1]
                         imdb_episode_id = re.search('tt[0-9]{7,10}', link.attrs['href']).group(0)
-                        print(f"episode_id: {imdb_episode_id}")
 
                         #Create an Episode object with the imdbTitleID of the episode and the
                         # job title credit
@@ -210,12 +208,9 @@ class Credit(object):
                                                          job_title=job_title))
 
     def _create_season_list(self, session):
-        # print(f"creating season list for {self.title}")
         for episode in self.episode_list:
-            # print(f"checking neo4j for episode {episode.imdb_episode_id}")
             results = session.read_transaction(check_neo4j_for_episode, episode)
             if results.peek() is not None:
-                print(f"episode {episode.imdb_episode_id} found in neo4j")
                 for record in results:
                     if record['e.seasonNum'] is not None:
                         episode.season_num = int(record['e.seasonNum'])
@@ -233,8 +228,6 @@ class Credit(object):
 
                 # If the episode has an airdate, season and episode numbers
                 # (otherwise it's useless) add it to neo4j
-                # print(f"episode {episode.imdb_episode_id}: airdate {episode.airdate},"
-                #       f"season_num {episode.season_num}, episode_num {episode.episode_num}")
                 if episode.airdate and episode.season_num and episode.episode_num:
                     print('     adding episode to neo4j: ', episode.episode_title,
                           episode.imdb_episode_id)
@@ -566,13 +559,6 @@ class EpisodeListPage(Page):
                                                  episode_num=episode_num,
                                                  airdate=airdate,
                                                  episode_title=episode_title))
-
-                # print("Episode Title: ", episode_title)
-                # print("IMDB Episode ID: ", imdb_episode_id)
-                # print("Season Number: ", season_num)
-                # print("Episode Number: ", episode_num)
-                # print("Airdate: ", airdate.strftime('%Y-%m-%d'))
-                # print("\n")
 
     """
     Populates the season list with seasons whose episodes fell within a particular year
