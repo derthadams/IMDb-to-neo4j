@@ -114,17 +114,17 @@ Navigate to the project directory
 and install the project dependencies using pip
 
     python3 -m pip install -r requirements.txt
-
-<a name="using"></a>
-## Using IMDb-to-neo4j
-
+    
 ### Additional dependencies
 Running this project requires that you have an installed and active 
 [neo4j 3.5 Community Version](https://neo4j.com/download-center/#community) database instance, as 
 well as [Google Chrome](https://www.google.com/chrome/) and 
 [ChromeDriver](https://chromedriver.chromium.org).
 
-### config file
+<a name="using"></a>
+## Using IMDb-to-neo4j
+
+### config.py file
 Secrets for your IMDb account and neo4j database are stored in a file called `config.py` which you 
 should create inside the main project directory `IMDb-to-neo4j`.
 
@@ -155,16 +155,20 @@ to the neo4j database by running the file `add_genres.py`
 Prepare a csv file with the IMDb identifiers and full names of the people whose credits you want to 
 scrape:
 
-*people.csv*
+*person_list.csv*
     
 | imdb_name_id | full_name |
 | ------------ | --------- |
 | nm0003113 | Derth Adams |
 | ... | ... |
 
-You can find the IMDb identifier for a person by searching for their profile page on IMDb. In the
-URL for the page you'll find the identifier, which starts with 'nm' and has 7 or 8 digits 
-immediately afterwards.
+You can find the IMDb identifier for a person by searching for their profile page on IMDb and
+looking at the page URL, which has the form
+
+    https://www.imdb.com/name/nm0000000/
+    
+The identifier is the last item in the URL: it starts with 'nm' and contains a sequence of 7 or 8 
+numbers.
 
 If any of the people in the csv file are not already in the neo4j database, run `add_people.py`
 
@@ -174,11 +178,7 @@ You will get a prompt for the csv file path.
 
     File path of the Person List: 
     
-Enter the file path
-
-    > people.csv
-    
-and you'll then get a prompt
+Enter the file path and you'll then get a prompt
 
     Number of rows to skip:
     
@@ -192,7 +192,8 @@ they're added.
     Adding IMDb name ID: nm0003113, Full name: Derth Adams
     
 #### Scraping credits for the list of people
-Once you have all the people added, you can scrape their credits by running `scrape_name_list.py`
+Once you have all the people added to neo4j, you can scrape their credits by running 
+`scrape_name_list.py`
 
     python3 scrape_name_list.py
     
@@ -200,23 +201,27 @@ Next you'll get the prompt
 
     Number of rows to skip:
     
-Chrome will launch and the script will log in to your IMDb account and take you to the IMDb home 
-page. At this point, sometimes IMDb will give you a CAPTCHA to complete.
-
-<a name="chrome"></a>
-At this point it's a good idea to turn off Javascript and images, which will greatly speed up 
-scraping. Go to Chrome -> Preferences -> Privacy and Security -> Site Settings and turn off the 
-options for Javascript and Images.
-
-At first I tried disabling Javascript and images automatically in the initial WebDriver settings,
-but since any CAPTCHA you receive will require both of those to be turned on, it's unfortunately
-necessary to turn them off manually.
+After you enter the number of rows the script will launch Chrome, log in to your IMDb account and 
+load the IMDb home page. 
 
 In the console, you'll see
 
     Hit enter to continue:
+
+Sometimes IMDb gives you a CAPTCHA challenge after you've logged in, so this pause allows you
+time to complete it.
+
+<a name="chrome"></a>
+Before moving on it's also a good idea to turn off Javascript and image loading, which will greatly 
+speed up the scraping process. Go to Chrome -> Preferences -> Privacy and Security -> Site Settings 
+and turn off the options for Javascript and Images.
+
+At first I tried disabling Javascript and images programmatically in the initial WebDriver settings,
+but since any CAPTCHA you receive will require both of those to be turned on, it's unfortunately
+necessary to turn them off manually after logging in.
     
-Hit enter and you'll be prompted for the file path of the person list csv
+When you're ready to continue, hit enter and you'll be prompted for the file path of the person 
+list csv
 
     File path of the Person List: 
     
@@ -228,17 +233,17 @@ Once you've entered the number of rows, the script will begin visiting the profi
 person on the list, and each episode of each show that they're listed as working on will be 
 recursively scraped in order to generate season entities.
 
-The script will check neo4j first for any episodes to try and avoid having to scrape the page, and 
-will save any new episodes it encounters back to neo4j.
+The script will check neo4j first for any episodes to try and avoid having to scrape the episode 
+page, and will save any new episodes it encounters back to neo4j for later use.
 
 After scraping is completed Chrome will quit and you can find a csv results file in the same 
-directory as your original list of names. The filename will be:
+directory as your original csv person list. The filename will be:
 
-    <your_name_list>_results.csv
+    <your_person_list>_results.csv
     
 It will have the following format:
 
-**people_results.csv**
+**person_list_results.csv**
 
 | name | name_id | job_class | job_title | first_year | last_year | show_title | title_id | season | show_type | show_genres |
 | ---- | ------- | --------- | --------- | ---------- | --------- | ---------- | -------- | ------ | --------- | ----------- |
@@ -270,8 +275,8 @@ and then
     
 Once you've entered the number of rows, the script will begin adding WORKED_ON relationships to 
 neo4j based on the credits in the csv.
-If any shows or seasons in the credit results csv aren't currently in the neo4j database, the script
-will use Chrome to scrape the corresponding pages to get the data.
+If any shows or seasons in the credit results csv are not currently in the neo4j database, the 
+script will use Chrome to scrape the corresponding pages to get the data.
 
 ### Adding WORKED_WITH relationships to neo4j
 
@@ -284,3 +289,13 @@ people who have worked on the same TV show season. You can do this by using `add
 The script will then run queries in neo4j that will find all people who have worked together on the
 same TV show season, and create WORKED_WITH relationships between them. For each relationship
 created you'll see a status update in the console.
+
+### Caveats
+
+I wrote this library specifically to scrape for people who work in the camera department. It looks 
+for credits in the "Camera and Electrical Department" and "Cinematographer" job classes and ignores 
+others, so if you try and use it with people working other jobs it won't work. Later on I may
+generalize the library so it works for all types of people on IMDb.
+
+Since IMDb is continuously under development, changes to the website could break this code's 
+functionality at any time.
