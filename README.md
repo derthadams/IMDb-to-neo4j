@@ -58,7 +58,7 @@ generates them from the related show and episode entities.
 
 ### Code organization
 The code is structured in two parts:
-1. A library `imdb-to-neo4j.py` which contains multipurpose classes and functions that handle scraping 
+1. A library `imdb-to-neo4j.py` which contains classes and functions that handle scraping 
 the IMDb pages and interacting with the neo4j database.
 2. Standalone scripts that use `imdb-to-neo4j.py` to accomplish individual tasks:
     1. `add_people.py`: takes a list of people with their IMDb identifiers and adds them to the neo4j 
@@ -202,8 +202,8 @@ they're added.
 
     Adding IMDb name ID: nm0003113, Full name: Derth Adams
     
-#### Scraping credits for the list of people
-Once you have all the people added to neo4j, you can scrape their credits by running 
+#### Scraping credits for a list of people
+Once you have a list of people added to neo4j, you can scrape their credits by running 
 `scrape_name_list.py`
 
     python3 scrape_name_list.py
@@ -235,8 +235,8 @@ and then
 
     Number of rows to skip:
 
-Once you've entered the number of rows to skip, the script will visit the profile page for each 
-person on the list. It will then recursively scrape the page of each episode of each show they're 
+The script will visit the profile page for each 
+person on the list and then recursively scrape the page for each episode of each show they're 
 credited with in order to generate season entities.
 
 The script will check neo4j first for any episodes to avoid having to scrape the episode 
@@ -279,10 +279,11 @@ and then
 
     Number of rows to skip:
     
-Once you've entered the number of rows, the script will begin adding WORKED_ON relationships to 
+The script will begin adding WORKED_ON relationships to 
 neo4j based on the credits in the csv.
 If any shows or seasons in the credit results csv are not currently in the neo4j database, the 
-script will use Chrome to scrape the corresponding pages to get the data.
+script will use Chrome to scrape the corresponding pages to get the necessary data and add them
+to neo4j.
 
 ### Adding WORKED_WITH relationships to neo4j
 
@@ -292,16 +293,16 @@ You can do this by using `add_worked_with.py`:
 
     python3 add_worked_with.py
     
-The script will then run queries in neo4j that will find all people who have worked together on the
+The script will run queries in neo4j that will find all people who have worked together on the
 same TV show season, and create WORKED_WITH relationships between them. For each relationship
 created you'll see a status update in the console.
 
 ### Caveats
 
 I wrote this library specifically to scrape for people who work in the camera department. It looks 
-for credits in the **Camera and Electrical Department** and **Cinematographer** job classes and ignores 
-others, so if you try and use it with people working other jobs it won't work. Later on I may
-generalize the library so it works for all types of jobs.
+for credits in the **Camera and Electrical Department** and **Cinematographer** job classes and 
+ignores others, so if you try and use it with people working other jobs it won't work. Later on I 
+may generalize the library so it works for all types of jobs.
 
 Since IMDb is continuously under development, changes to the website could break this code's 
 functionality at any time.
