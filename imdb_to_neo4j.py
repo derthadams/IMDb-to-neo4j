@@ -186,12 +186,12 @@ class Credit(object):
         if episode_divs:
             # for each episode div
             for episode_div in episode_divs:
-                #find all the <a> elements in the episode div
+                # find all the <a> elements in the episode div
                 for link in episode_div.findAll('a'):
-                    #if there's a link to an episode page
+                    # if there's a link to an episode page
                     if 'href' in link.attrs:
                         job_title = ''
-                        #Grab the episode job title credit from the episode credit (if it exists)
+                        # Grab the episode job title credit from the episode credit (if it exists)
                         episode_title_job = episode_div.text.strip("\n)- ").split("\n... (")
                         if len(episode_title_job) == 2:
                             if bool(re.search('camera|AC|operator|photo|cinematograph|clapper'
@@ -201,7 +201,7 @@ class Credit(object):
                                 job_title = episode_title_job[1]
                         imdb_episode_id = re.search('tt[0-9]{7,10}', link.attrs['href']).group(0)
 
-                        #Create an Episode object with the imdbTitleID of the episode and the
+                        # Create an Episode object with the imdbTitleID of the episode and the
                         # job title credit
                         self.episode_list.append(Episode(imdb_title_id=self.imdb_title_id,
                                                          imdb_episode_id=imdb_episode_id,
