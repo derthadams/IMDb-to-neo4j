@@ -895,6 +895,28 @@ def open_imdb_browser():
 
     pause = input("Hit enter to continue: ")
 
+    j = 5
+    while j > 0:
+        try:
+            driver.get('chrome://settings/content/javascript')
+            break
+        except TimeoutException:
+            driver.refresh()
+            j -= 1
+
+    pause = input("Manually turn off Javascript, then hit enter")
+
+    j = 5
+    while j > 0:
+        try:
+            driver.get('chrome://settings/content/images')
+            break
+        except TimeoutException:
+            driver.refresh()
+            j -= 1
+
+    pause = input("Manually turn off Images, then hit enter: ")
+
     return driver
 
 
