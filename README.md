@@ -22,7 +22,7 @@ There were a few challenges to using IMDb as a data source:
 
 - Since IMDb has no public API, I needed to discover patterns in the structure of the page source 
 that would allow me to find the data I wanted. This is a bit of a moving target since IMDb is 
-continuously being redeveloped. I've already had to rework my code a few times to account for 
+continuously being redeveloped. I've had to rework my code a few times to account for 
 changes in the way the site is structured.
 
 - IMDb is crowdsourced, so the completeness and quality of the data can be spotty. I couldn't count 
@@ -126,6 +126,15 @@ installed, as well as [Google Chrome](https://www.google.com/chrome/) and
 
 <a name="using"></a>
 ## Using IMDb-to-neo4j
+
+### IMDb account
+
+You'll need to [register for an IMDb account](https://www.imdb.com/registration/signin). 
+
+To ensure that the scraper can access all the information it needs, log in and navigate to 
+Account Settings -> Preferences -> Content settings -> Name pages.
+
+In the dropdown under 'Number of TV episodes from the same series to display', select 'All'.
 
 ### config.py file
 Secrets for your IMDb account and neo4j database are stored in a file called `config.py` which you 
@@ -291,7 +300,7 @@ created you'll see a status update in the console.
 ### Caveats
 
 I wrote this library specifically to scrape for people who work in the camera department. It looks 
-for credits in the "Camera and Electrical Department" and "Cinematographer" job classes and ignores 
+for credits in the **Camera and Electrical Department** and **Cinematographer** job classes and ignores 
 others, so if you try and use it with people working other jobs it won't work. Later on I may
 generalize the library so it works for all types of jobs.
 
