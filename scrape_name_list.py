@@ -38,7 +38,7 @@ def main():
                     if credit.season_list:
                         for season in credit.season_list:
                             if ((credit.first_year and credit.last_year) or
-                                 season.first_airdate and season.last_airdate):
+                               season.first_airdate and season.last_airdate):
                                 for job in season.job_title_list:
                                     row = [
                                         crew.full_name,
