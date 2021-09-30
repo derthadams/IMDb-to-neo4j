@@ -651,6 +651,26 @@ def check_neo4j_for_episode_genre(tx, episode):
                   imdbEpisodeID=imdb_episode_id)
 
 
+def check_neo4j_for_show(tx, show):
+    return tx.run("MATCH (s:Show {imdbTitleID: $imdbTitleID})"
+                  "RETURN s.showTitle",
+                  imdbTitleID=show.imdb_title_id)
+
+
+def check_neo4j_for_season(tx, season):
+    return tx.run("MATCH (se:Season {imdbSeasonID: $imdbSeasonID})"
+                  "RETURN se.seasonTitle, se.firstAirDate, se.lastAirDate",
+                  imdbSeasonID=season.imdb_season_id)
+
+
+def check_neo4j_for_season_years(tx, show, start_year, end_year):
+    tx.run("MATCH (s:Show {imdbTitleID: $imdbTitleID})<-[:SEASON_OF]-(se) "
+           "WHERE date(toString($start_year) + '-01-01') <= se.roughEnd and "
+           "se.roughStart <= date(toString($end_year) + '-01-01') "
+           "RETURN se.imdbSeasonID, se.roughStart, se.roughEnd ",
+           imdbTitleID=show.imdb_title_id, start_year=start_year, end_year=end_year)
+
+
 def add_episode(tx, episode):
     imdb_episode_id = episode.imdb_episode_id
     imdb_season_id = episode.imdb_season_id
@@ -681,6 +701,68 @@ def add_genre_to_episode(tx, episode):
             tx.run("MATCH(e:Episode {imdbEpisodeID: $imdbEpisodeID})"
                    "MATCH(g:Genre {genreName:$genre})"
                    "MERGE(e)-[:HAS_GENRE]->(g)", imdbEpisodeID=imdb_episode_id, genre=genre)
+
+
+def add_season(tx, season, source):
+    print("Called add_season")
+    tx.run("MERGE (se:Season {imdbSeasonID: $imdbSeasonID}) "
+           "ON CREATE SET se.createdDate = datetime(), se.source = $source, "
+           "se.seasonTitle = $seasonTitle, se.seasonNumber = $seasonNumber, "
+           "se.firstAirdate = date($firstAirdate), se.lastAirdate = date($lastAirdate), "
+           "se.roughStart = date($roughStart), se.roughEnd = date($roughEnd), "
+           "se.uuid = apoc.create.uuid() ",
+           imdbSeasonID=season.imdb_season_id, seasonTitle=season.season_title,
+           seasonNumber=season.season_num, firstAirdate=season.first_airdate,
+           lastAirdate=season.last_airdate, roughStart=season.rough_start,
+           roughEnd=season.rough_end, source=source)
+
+
+def add_season_of(tx, season, show):
+    print("Called add_season_of")
+    tx.run("MATCH (se:Season {imdbSeasonID: $imdbSeasonID})"
+           "MATCH (sh:Show {imdbTitleID: $imdbTitleID})"
+           "MERGE(se)-[:SEASON_OF]->(sh)",
+           imdbSeasonID=season.imdb_season_id, imdbTitleID=show.imdb_title_id)
+
+
+def add_show(tx, show, source):
+    print("Called add_show")
+    tx.run("MERGE (sh:Show {imdbTitleID: $imdbTitleID, showTitle: $showTitle}) "
+           "ON CREATE SET sh.createdDate = datetime(), sh.source = $source, "
+           "sh.uuid = apoc.create.uuid() ",
+           imdbTitleID=show.imdb_title_id, showTitle=show.show_title,
+           source=source)
+    for genre in show.genre_list:
+            add_has_genre(tx, show.imdb_title_id, genre, source)
+
+
+def add_has_genre(tx, imdb_title_id, genre, source):
+    tx.run("MATCH (sh:Show {imdbTitleID: $imdbTitleID})"
+           "MATCH (g:Genre {genreName: $genre})"
+           "MERGE (sh)-[r:HAS_GENRE]->(g)"
+           "ON CREATE SET r.createdDate = datetime(), r.source = $source",
+           imdbTitleID=imdb_title_id, genre=genre, source=source)
+
+
+def add_worked_on_show(tx, imdb_name_id, job_title, imdb_title_id, source):
+    print("Called add_worked_on_show")
+    tx.run("MATCH (a:Person {imdbNameID: $imdbNameID})"
+           "MATCH (sh:Show {imdbTitleID: $imdbTitleID})"
+           "MERGE (a)-[r:WORKED_ON {jobTitle: $jobTitle}]->(sh)"
+           "ON CREATE SET r.createdDate = datetime(), r.source = $source",
+           imdbNameID=imdb_name_id, jobTitle=job_title, imdbTitleID=imdb_title_id,
+           source=source)
+
+
+def add_worked_on_season(tx, imdb_name_id, job_title, imdb_season_id, source):
+    print("Called add_worked_on_season")
+    return tx.run("MATCH (a:Person {imdbNameID: $imdbNameID})"
+                  "MATCH (se:Season {imdbSeasonID: $imdbSeasonID})"
+                  "MERGE (a)-[r:WORKED_ON {jobTitle: $jobTitle}]->(se)"
+                  "ON CREATE SET r.createdDate = datetime(), "
+                  "r.source = $source RETURN r.createdDate",
+                  imdbNameID=imdb_name_id, jobTitle=job_title, imdbSeasonID=imdb_season_id,
+                  source=source)
 
 
 def parse_job_list(job_list):
