@@ -893,7 +893,7 @@ def open_imdb_browser():
     li = driver.find_element_by_id('signInSubmit')
     li.click()
 
-    pause = input("Hit enter to begin scraping: ")
+    pause = input("Hit enter to continue: ")
 
     return driver
 
