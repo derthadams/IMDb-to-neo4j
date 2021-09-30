@@ -7,7 +7,7 @@
 <a name="introduction"></a>
 ## Introduction
 I started this project because I wanted to study the collaboration networks of camera professionals 
-working in the TV industry, and I needed a way to gather and analyze the data.
+working in the TV industry, and I needed a way to gather and analyze data.
 
 TV freelancers work on short-term assignments for many different employers, and find work through 
 informal peer networks. 
@@ -15,7 +15,8 @@ I wanted to be able to visualize these networks and use graph algorithms to anal
 
 I decided to use the property graph database neo4j as a data store, since it allows for efficient 
 queries of highly connected data. To source the data I chose to scrape IMDb, an online crowdsourced 
-database of film and TV credits which includes pretty much everyone who works in the industry.
+database of film and TV credits which includes information on pretty much everyone who works in the 
+industry.
 
 There were a few challenges to using IMDb as a data source:
 
@@ -44,31 +45,34 @@ requests.
 
 The following two diagrams show the approximate relational schema for the IMDb source data, and the 
 graph schema for my neo4j datastore. Since seasons don't exist as entities in IMDb, my code 
-generates them form the related show and episode entities.
+generates them from the related show and episode entities.
 
-![IMDb schema](/Users/derthSL/Documents/Business/ICG/IMDb_to_neo4j/IMDb_relational_schema.png)
+![IMDb schema](https://user-images.githubusercontent.com/39425112/135365993-7b0729cc-a1c8-4b21-9cc3-90ca4f127f78.png)
 
 | IMDb Relational Schema |
 | :----: |
 
-![neo4j schema](/Users/derthSL/Documents/Business/ICG/IMDb_to_neo4j/neo4j_schema.png)
+![neo4j schema](https://user-images.githubusercontent.com/39425112/135366038-76c46fa4-366d-4775-a07e-e54d3b4f6cc5.png)
 
 | neo4j Graph Schema |
 | :----: |
 
+Not only does the code scrape data and store it, it also cleans and transforms the data
+into a different schema.
+
 ### Code organization
 I structured my code in two parts:
-1. A library `imdb-to-neo4j` which contains multipurpose classes and functions that handle scraping 
+1. A library `imdb-to-neo4j.py` which contains multipurpose classes and functions that handle scraping 
 the IMDb pages and interacting with the neo4j database.
-2. Standalone scripts that use `imdb-to-neo4j` to accomplish individual tasks:
-    1. `add_people`: takes a list of people with their IMDb identifiers and adds them to the neo4j 
+2. Standalone scripts that use `imdb-to-neo4j.py` to accomplish individual tasks:
+    1. `add_people.py`: takes a list of people with their IMDb identifiers and adds them to the neo4j 
     database
-    2. `scrape_name_list`: takes a list of people, scrapes their credits from IMDb, and outputs a 
+    2. `scrape_name_list.py`: takes a list of people, scrapes their credits from IMDb, and outputs a 
     csv containing the credit information.
-    3. `add_worked_on`: takes the credit csv output by scrape_name_list, adds WORKED_ON 
+    3. `add_worked_on.py`: takes the credit csv output by scrape_name_list, adds WORKED_ON 
     relationships between people, seasons, and shows in the neo4j database, and also adds the 
     seasons and shows if they're not yet in the database.
-    4. `add_worked_with`: searches for people who have both worked on the same season and adds a 
+    4. `add_worked_with.py`: searches for people who have both worked on the same season and adds a 
     WORKED_WITH relationship between them.
 
 <a name="installation"></a>
@@ -76,11 +80,11 @@ the IMDb pages and interacting with the neo4j database.
 
 ### Linux and macOS
 
-IMDB-to-neo4j and its dependencies require Python 3.7, so make sure that you have that version 
-installed, as well as [pip](https://pip.pypa.io/en/stable/) and 
+IMDB-to-neo4j and its dependencies require Python 3.7, as well as 
+[pip](https://pip.pypa.io/en/stable/) and 
 [virtualenv](https://pypi.org/project/virtualenv/).
 
-Navigate to the directory where you want to install IMDb-to-neo4j and reate a virtual environment 
+Navigate to the directory where you want to install IMDb-to-neo4j and create a virtual environment 
 with Python 3.7
 
     python3 -m virtualenv --python=<path/to/python3.7> <environment-name>
@@ -95,26 +99,26 @@ Initialize git
     
 Clone the IMDb-to-neo4j git repository, either
 
-via https
+- via https
     
-    git clone https://github.com/derthadams/IMDb-to-neo4j.git
+        git clone https://github.com/derthadams/IMDb-to-neo4j.git
     
-or via ssh
+- or via ssh
 
-    git clone git@github.com:derthadams/IMDb-to-neo4j.git
+        git clone git@github.com:derthadams/IMDb-to-neo4j.git
     
 Navigate to the project directory
 
     cd IMDb-to-neo4j
     
-Install the project dependencies using pip
+and install the project dependencies using pip
 
     python3 -m pip install -r requirements.txt
 
 <a name="using"></a>
 ## Using IMDb-to-neo4j
 
-### Dependencies
+### Additional dependencies
 Running this project requires that you have an installed and active 
 [neo4j 3.5 Community Version](https://neo4j.com/download-center/#community) database instance, as 
 well as [Google Chrome](https://www.google.com/chrome/) and 
@@ -140,27 +144,33 @@ ignore during processing.
 
 ### Preparing the neo4j database
 
-The first thing you should do before running any other scripts is to add all possible IMDb genres 
+The first thing you should do before running any other scripts is to add all IMDb genres 
 to the neo4j database by running the file `add_genres.py`
 
     python3 add_genres.py
     
-### Scraping credits for a list of people
+### Scraping credits
 
-
+#### Adding people to neo4j
 Prepare a csv file with the IMDb identifiers and full names of the people whose credits you want to 
 scrape:
 
 *people.csv*
     
-    imdb_name_id    full_name
-    nm0003113       Derth Adams
-    ...             ...
-If any of the people in the csv file aren't already in the neo4j database, run `add_people.py`
+| imdb_name_id | full_name |
+| ------------ | --------- |
+| nm0003113 | Derth Adams |
+| ... | ... |
+
+You can find the IMDb identifier for a person by searching for their profile page on IMDb. In the
+URL for the page you'll find the identifier, which starts with 'nm' and has 7 or 8 digits 
+immediately afterwards.
+
+If any of the people in the csv file are not already in the neo4j database, run `add_people.py`
 
     python3 add_people.py
     
-You will get a prompt for the csv file path
+You will get a prompt for the csv file path.
 
     File path of the Person List: 
     
@@ -168,20 +178,20 @@ Enter the file path
 
     > people.csv
     
-You'll then get a prompt
+and you'll then get a prompt
 
     Number of rows to skip:
     
 If you want to scrape credits for the entire list and you have a header row in your csv, enter 1, 
 otherwise enter 0. If you want to skip a certain number of rows of people, enter the number of rows 
-you want to skip. This can be useful
-if you're processing names in batches.
+you want to skip. This can be useful if you're processing names in batches.
     
 The script will then start adding people to neo4j and you'll see a confirmation for each person as 
 they're added.
 
     Adding IMDb name ID: nm0003113, Full name: Derth Adams
     
+#### Scraping credits for the list of people
 Once you have all the people added, you can scrape their credits by running `scrape_name_list.py`
 
     python3 scrape_name_list.py
@@ -227,6 +237,8 @@ directory as your original list of names. The filename will be:
     <your_name_list>_results.csv
     
 It will have the following format:
+
+**people_results.csv**
 
 | name | name_id | job_class | job_title | first_year | last_year | show_title | title_id | season | show_type | show_genres |
 | ---- | ------- | --------- | --------- | ---------- | --------- | ---------- | -------- | ------ | --------- | ----------- |
