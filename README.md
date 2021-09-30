@@ -194,9 +194,7 @@ Enter the file path and you'll then get a prompt
 
     Number of rows to skip:
     
-If you want to scrape credits for the entire list and you have a header row in your csv, enter 1, 
-otherwise enter 0. If you want to skip a certain number of rows of people, enter the number of rows 
-you want to skip. This can be useful if you're processing names in batches.
+If you have a header row in your csv, enter 1, otherwise enter 0.
     
 The script will then start adding people to neo4j and you'll see a confirmation for each person as 
 they're added.
@@ -236,7 +234,7 @@ and then
 
     Number of rows to skip:
 
-Once you've entered the number of rows, the script will visit the profile page for each 
+Once you've entered the number of rows to skip, the script will visit the profile page for each 
 person on the list. It will then recursively scrape the page of each episode of each show they're 
 credited with in order to generate season entities.
 
