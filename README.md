@@ -194,7 +194,8 @@ Enter the file path and you'll then get a prompt
 
     Number of rows to skip:
     
-If you have a header row in your csv, enter 1, otherwise enter 0.
+If you have a header row in your csv enter 1, otherwise enter 0. You can also enter any arbitrary 
+row number if you want to skip ahead in the file.
     
 The script will then start adding people to neo4j and you'll see a confirmation for each person as 
 they're added.
