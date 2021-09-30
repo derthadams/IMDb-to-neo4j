@@ -1,5 +1,6 @@
 import imdb_to_neo4j as i2n
 import csv
+import re
 
 
 def main():
@@ -35,40 +36,41 @@ def main():
                 print("\nNow processing", crew.full_name)
                 name_page = i2n.NamePage(driver, session, crew)
                 for credit in name_page:
-                    if credit.season_list:
-                        for season in credit.season_list:
-                            if ((credit.first_year and credit.last_year) or
-                               season.first_airdate and season.last_airdate):
-                                for job in season.job_title_list:
+                    if re.match("TV", credit.show_type) and re.search("Series", credit.show_type):
+                        if credit.season_list:
+                            for season in credit.season_list:
+                                if ((credit.first_year and credit.last_year) or
+                                   season.first_airdate and season.last_airdate):
+                                    for job in season.job_title_list:
+                                        row = [
+                                            crew.full_name,
+                                            crew.imdb_name_id,
+                                            i2n.to_caps(credit.job_class),
+                                            i2n.to_caps(job),
+                                            credit.first_year,
+                                            credit.last_year,
+                                            credit.title,
+                                            credit.imdb_title_id,
+                                            str(season.season_num),
+                                            credit.show_type,
+                                            season.genre_list,
+                                        ]
+                                        csvwriter.writerow(row)
+                                else:
                                     row = [
                                         crew.full_name,
                                         crew.imdb_name_id,
                                         i2n.to_caps(credit.job_class),
-                                        i2n.to_caps(job),
+                                        i2n.to_caps(credit.job_title),
                                         credit.first_year,
                                         credit.last_year,
                                         credit.title,
                                         credit.imdb_title_id,
-                                        str(season.season_num),
+                                        None,
                                         credit.show_type,
-                                        season.genre_list,
+                                        credit.genre_list,
                                     ]
                                     csvwriter.writerow(row)
-                    else:
-                        row = [
-                            crew.full_name,
-                            crew.imdb_name_id,
-                            i2n.to_caps(credit.job_class),
-                            i2n.to_caps(credit.job_title),
-                            credit.first_year,
-                            credit.last_year,
-                            credit.title,
-                            credit.imdb_title_id,
-                            None,
-                            credit.show_type,
-                            credit.genre_list,
-                        ]
-                        csvwriter.writerow(row)
         session.close()
     driver.quit()
 
