@@ -650,11 +650,11 @@ def check_neo4j_for_season(tx, season):
 
 
 def check_neo4j_for_season_years(tx, show, start_year, end_year):
-    tx.run("MATCH (s:Show {imdbTitleID: $imdbTitleID})<-[:SEASON_OF]-(se) "
-           "WHERE date(toString($start_year) + '-01-01') <= se.roughEnd and "
-           "se.roughStart <= date(toString($end_year) + '-01-01') "
-           "RETURN se.imdbSeasonID, se.roughStart, se.roughEnd ",
-           imdbTitleID=show.imdb_title_id, start_year=start_year, end_year=end_year)
+    return tx.run("MATCH (s:Show {imdbTitleID: $imdbTitleID})<-[:SEASON_OF]-(se) "
+                  "WHERE date(toString($start_year) + '-01-01') <= se.roughEnd and "
+                  "se.roughStart <= date(toString($end_year) + '-01-01') "
+                  "RETURN se.imdbSeasonID, se.roughStart, se.roughEnd ",
+                  imdbTitleID=show.imdb_title_id, start_year=start_year, end_year=end_year)
 
 
 def add_episode(tx, episode):

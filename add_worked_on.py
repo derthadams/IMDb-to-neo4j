@@ -6,7 +6,7 @@ import config
 def get_seasons_and_year_set(session, show, first_year, last_year):
     results = session.read_transaction(i2n.check_neo4j_for_season_years,
                                        show, first_year, last_year)
-    if results is None:
+    if results.peek() is None:
         return [], set()
     else:
         season_ids = []
