@@ -96,11 +96,7 @@ can leave the virtual environment with
 
     deactivate
 
-Next, initialize the folder as a git repository
-
-    git init
-    
-and clone the IMDb-to-neo4j repository, either
+Next, clone the IMDb-to-neo4j repository, either
 
 - via https
     
